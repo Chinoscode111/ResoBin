@@ -75,8 +75,8 @@ const TimetableContainer = () => {
   const courseAPILoading = useSelector(selectCourseAPILoading)
 
   const [courseTimetableList, setCourseTimetableList] = useState([])
-  const [courseData, setCourseData] = useState([]);
-  const [coursedata, setCoursedata] = useState([]);
+  const [courseData, setCourseData] = useState([])
+  const [coursedata, setCoursedata] = useState([])
   const [loading, setLoading] = useState(courseAPILoading)
   const [semIdx, setSemIdx] = useState(null)
 
@@ -156,67 +156,66 @@ const TimetableContainer = () => {
     }
   }
   const getCourseList = () => {
-    const courseList = courseTimetableList.map(item => item.course);
-    return courseList;
+    const courseList = courseTimetableList.map((item) => item.course)
+    return courseList
   }
 
   useEffect(() => {
     const fetchCourseData = async () => {
       try {
-        setLoading(true);
-        const courseList = getCourseList();
+        setLoading(true)
+        const courseList = getCourseList()
         const promises = courseList.map(async (course) => {
-          const response = await API.courses.read({ code: course });
-          return response;
-        });
-        const courseDataArray = await Promise.all(promises);
-        setCoursedata(courseDataArray); // Update the state with courseDataArray
+          const response = await API.courses.read({ code: course })
+          return response
+        })
+        const courseDataArray = await Promise.all(promises)
+        setCoursedata(courseDataArray) // Update the state with courseDataArray
       } catch (error) {
-        toast({ status: 'error', content: error });
+        toast({ status: 'error', content: error })
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
-  
-    fetchCourseData();
-  }, [courseTimetableList]);
+    }
 
+    fetchCourseData()
+  }, [courseTimetableList])
 
   const filteredCourseData = coursedata.filter((course) => {
-    return course.isHalfSemester === true;
-  });
- 
-const groupCoursesByLectureSlot = (courses) => {
-  const groupedCourses = courses.reduce((acc, course) => {
-    course.lectureSlots.forEach((lectureSlot) => {
-      if (!acc.has(lectureSlot)) {
-        acc.set(lectureSlot, new Set([course.code]));
-      } else {
-        acc.get(lectureSlot).add(course.code);
-      }
-    });
-    return acc;
-  }, new Map());
-  groupedCourses.forEach((value, key, map) => {
-    map.set(key, Array.from(value));
-  });
+    return course.isHalfSemester === true
+  })
 
-  return Object.fromEntries(groupedCourses);
-};
+  const groupCoursesByLectureSlot = (courses) => {
+    const groupedCourses = courses.reduce((acc, course) => {
+      course.lectureSlots.forEach((lectureSlot) => {
+        if (!acc.has(lectureSlot)) {
+          acc.set(lectureSlot, new Set([course.code]))
+        } else {
+          acc.get(lectureSlot).add(course.code)
+        }
+      })
+      return acc
+    }, new Map())
+    groupedCourses.forEach((value, key, map) => {
+      map.set(key, Array.from(value))
+    })
 
+    return Object.fromEntries(groupedCourses)
+  }
 
-const halfSemCourses = filteredCourseData.map((course) => {
-  const { code, semester } = course;
-  const lectureSlots = semester.flatMap((sem) =>
-    sem.timetable.flatMap((slot) => slot.lectureSlots)
-  );
-  const tutorialSlots = semester.flatMap((sem) =>
-    sem.timetable.flatMap((slot) => slot.tutorialSlots)
-  );
-  return { code, lectureSlots, tutorialSlots };
-});
-const groupedCoursesData = Object.entries(groupCoursesByLectureSlot([...halfSemCourses]))
-
+  const halfSemCourses = filteredCourseData.map((course) => {
+    const { code, semester } = course
+    const lectureSlots = semester.flatMap((sem) =>
+      sem.timetable.flatMap((slot) => slot.lectureSlots)
+    )
+    const tutorialSlots = semester.flatMap((sem) =>
+      sem.timetable.flatMap((slot) => slot.tutorialSlots)
+    )
+    return { code, lectureSlots, tutorialSlots }
+  })
+  const groupedCoursesData = Object.entries(
+    groupCoursesByLectureSlot([...halfSemCourses])
+  )
 
   const getSlotClashes = () => {
     const courseAndSlotList = []
@@ -246,7 +245,7 @@ const groupedCoursesData = Object.entries(groupCoursesByLectureSlot([...halfSemC
       const next = courseTimetableSlots[i]
       if (
         prev.grid.col === next.grid.col &&
-        prev.grid.row.end > next.grid.row.start    
+        prev.grid.row.end > next.grid.row.start
       )
         clashes.push({
           first: courseTimetableSlots[i - 1],
@@ -255,30 +254,29 @@ const groupedCoursesData = Object.entries(groupCoursesByLectureSlot([...halfSemC
     }
     return clashes
   }
-  
+
   const slotClashWarnings = (clashes) => {
-    const warnings = [];
+    const warnings = []
     if (Array.isArray(halfSemCourses)) {
       clashes.forEach((clash) => {
-        const { first } = clash;
-        const { second } = clash;
+        const { first } = clash
+        const { second } = clash
         const FirstCourseHalfSem = halfSemCourses.some(
           (course) => course.code === first.course
-        );
+        )
         const SecondCourseHalfSem = halfSemCourses.some(
           (course) => course.code === second.course
-        );        
+        )
 
         if (!FirstCourseHalfSem || !SecondCourseHalfSem) {
           warnings.push(
             `${first.course} (Slot ${first.slotName}) is clashing with ${second.course} (Slot ${second.slotName})`
-          );
+          )
         }
-      });
+      })
     }
-    return warnings;
-  };
-  
+    return warnings
+  }
 
   const warnings = slotClashWarnings(getSlotClashes())
 
@@ -322,17 +320,16 @@ const groupedCoursesData = Object.entries(groupCoursesByLectureSlot([...halfSemC
         indicator={<LoadingOutlined style={{ fontSize: 24 }} spin />}
       >
         <TimetableLayout>
-          {courseTimetableList.map((item) => (
-            halfSemCourses.some((course) => course.code === item.course)
-              ? null
-              : <TimetableCourseItem key={item.id} data={item} />
-        ))}
-         {groupedCoursesData.map(([key, courses]) => (
-          <HalfSemCourseItem keyProp={key} data={courses} />
-
-        
-        ))}
-            
+          {courseTimetableList.map((item) =>
+            halfSemCourses.some(
+              (course) => course.code === item.course
+            ) ? null : (
+              <TimetableCourseItem key={item.id} data={item} />
+            )
+          )}
+          {groupedCoursesData.map(([key, courses]) => (
+            <HalfSemCourseItem keyProp={key} data={courses} />
+          ))}
 
           <CurrentTime mode="vertical" />
         </TimetableLayout>

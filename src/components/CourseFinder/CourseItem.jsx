@@ -17,7 +17,9 @@ import { device, fontSize } from 'styles/responsive'
 const HighlightMatches = ({ content }) => {
   const location = useLocation()
   const queryString = new URLSearchParams(location.search)
-  const search = (queryString.get('q') || '').toLowerCase()
+
+  // DEV: changed search to spaceless string here
+  const search = (queryString.get('q') || '').toLowerCase().replace(/ /g, '')
   const re = new RegExp(`(${search})`, 'gi')
 
   return content

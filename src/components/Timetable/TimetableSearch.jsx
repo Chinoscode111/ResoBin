@@ -11,7 +11,7 @@ import { API } from 'config/api'
 import { useQueryString, useResponsive } from 'hooks'
 import { selectIsDropdownActive } from 'store/settingsSlice'
 
-const  TimetableSearch = ({ loading, setLoading, data }) => {
+const TimetableSearch = ({ loading, setLoading, data }) => {
   const { isDesktop } = useResponsive()
   const { deleteQueryString, getQueryString, setQueryString } = useQueryString()
   const showFilter = useSelector(selectIsDropdownActive)
@@ -26,16 +26,17 @@ const  TimetableSearch = ({ loading, setLoading, data }) => {
   }
 
   const filterSuggestions = (value) => {
-    if (!data ) {
+    if (!data) {
       return []
-    } 
-   
-    const lowercaseValue = value ? value.toLowerCase() : ''
+    }
+
+    // DEV: changed value to spaceless string here
+    const lowercaseValue = value ? value.toLowerCase().replace(/ /g, '') : ''
 
     const suggestions = []
 
     data.forEach(({ code, semester }) => {
-      const lowercaseCode = code.toLowerCase()
+      const lowercaseCode = code.toLowerCase().replace(/ /g, '')
 
       if (lowercaseCode.includes(lowercaseValue)) {
         if (semester.length > 0) {
@@ -80,7 +81,10 @@ const  TimetableSearch = ({ loading, setLoading, data }) => {
 
   const addToTimetable = async (code, id) => {
     if (id === -1) {
-      toast({ status: 'error', content: `No TimeTable Found For ${code} for current semester` })
+      toast({
+        status: 'error',
+        content: `No TimeTable Found For ${code} for current semester`,
+      })
     } else {
       try {
         await API.profile.timetable.add({ id })
