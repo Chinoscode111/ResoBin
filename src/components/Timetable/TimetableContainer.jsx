@@ -2,7 +2,7 @@ import { LoadingOutlined } from '@ant-design/icons'
 import { ChevronLeft, ChevronRight, X } from '@styled-icons/heroicons-outline'
 import { Spin, Alert } from 'antd'
 import axios from 'axios'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import styled from 'styled-components/macro'
@@ -20,11 +20,7 @@ import { API } from 'config/api'
 import { slots } from 'data/timetable'
 import { displayYear, coursePageUrl } from 'helpers'
 import { useQueryString } from 'hooks'
-import {
-  selectCourseAPILoading,
-  selectCourseTitle,
-  selectSemesters,
-} from 'store/courseSlice'
+import { selectCourseAPILoading, selectSemesters } from 'store/courseSlice'
 import { updateTimetable } from 'store/userSlice'
 
 import CurrentTime from './CurrentTime'
@@ -35,8 +31,8 @@ import TimetableLayout from './TimetableLayout'
 import TimetableSearch from './TimetableSearch'
 import TimetableShareButton from './TimetableShareButton'
 
-const TimetableAsideItem = ({ code, handleRemove, loading }) => {
-  const title = useSelector(selectCourseTitle(code))
+const TimetableAsideItem = ({ course, handleRemove, loading }) => {
+  const { code, title, credits } = course ?? {}
 
   return (
     <StyledLink to={coursePageUrl(code, title)}>
@@ -55,7 +51,13 @@ const TimetableAsideItem = ({ code, handleRemove, loading }) => {
               />
             </TimetableCardTitle>
           }
-          description={title}
+          description={
+            <>
+              <span>{title}</span>
+              <br />
+              <span>Credits: {credits}</span>
+            </>
+          }
         />
       </Card>
     </StyledLink>
@@ -76,7 +78,7 @@ const TimetableContainer = () => {
 
   const [courseTimetableList, setCourseTimetableList] = useState([])
   const [courseData, setCourseData] = useState([])
-  const [coursedata, setCoursedata] = useState([])
+  const [coursedata, setCoursedata] = useState({})
   const [loading, setLoading] = useState(courseAPILoading)
   const [semIdx, setSemIdx] = useState(null)
 
@@ -118,22 +120,22 @@ const TimetableContainer = () => {
     if (semesterList.length) setSemIdx(semesterList.length - 1)
   }, [semesterList])
 
-  useEffect(() => {
-    const fetchUserTimetable = async (_semester) => {
-      try {
-        setLoading(true)
-        const response = await API.profile.timetable.read(_semester)
-        setCourseTimetableList(response)
-      } catch (error) {
-        toast({ status: 'error', content: error })
-      } finally {
-        setLoading(false)
-      }
+  const fetchUserTimetable = useCallback(async (_semester) => {
+    try {
+      setLoading(true)
+      const response = await API.profile.timetable.read(_semester)
+      setCourseTimetableList(response)
+    } catch (error) {
+      toast({ status: 'error', content: error })
+    } finally {
+      setLoading(false)
     }
+  }, [])
 
+  useEffect(() => {
     if (semIdx !== null) fetchUserTimetable(semesterList[semIdx])
     else setLoading(true)
-  }, [semesterList, semIdx])
+  }, [fetchUserTimetable, semesterList, semIdx])
 
   const handleClickPrev = () =>
     semIdx - 1 in semesterList && setSemIdx(semIdx - 1)
@@ -155,6 +157,24 @@ const TimetableContainer = () => {
       setLoading(false)
     }
   }
+
+  const addToTimetable = async (code, id) => {
+    if (id === -1) {
+      toast({
+        status: 'error',
+        content: `No TimeTable Found For ${code} for current semester`,
+      })
+    } else {
+      try {
+        await API.profile.timetable.add({ id })
+      } catch (error) {
+        toast({ status: 'error', content: error })
+      } finally {
+        fetchUserTimetable(semesterList[semIdx])
+      }
+    }
+  }
+
   const getCourseList = () => {
     const courseList = courseTimetableList.map((item) => item.course)
     return courseList
@@ -170,18 +190,43 @@ const TimetableContainer = () => {
           return response
         })
         const courseDataArray = await Promise.all(promises)
-        setCoursedata(courseDataArray) // Update the state with courseDataArray
+        const courseDataObj = {}
+        courseDataArray.forEach((course) => {
+          courseDataObj[course.code] = course
+        })
+        setCoursedata(courseDataObj)
       } catch (error) {
         toast({ status: 'error', content: error })
       } finally {
+        // <<<<<<< fix/no-refresh-on-course-add
+        //         setLoading(false);
+        //       }
+        //     };
+
+        //     fetchCourseData();
+        //   }, [courseTimetableList]);
+
+        //   const filteredCourseData = coursedata.filter((course) => {
+        //     return course.isHalfSemester === true;
+        //   });
+
+        // const groupCoursesByLectureSlot = (courses) => {
+        //   const groupedCourses = courses.reduce((acc, course) => {
+        //     course.lectureSlots.forEach((lectureSlot) => {
+        //       if (!acc.has(lectureSlot)) {
+        //         acc.set(lectureSlot, new Set([course.code]));
+        //       } else {
+        //         acc.get(lectureSlot).add(course.code);
+        // =======
         setLoading(false)
+        // >>>>>>> DOPE
       }
     }
 
     fetchCourseData()
   }, [courseTimetableList])
 
-  const filteredCourseData = coursedata.filter((course) => {
+  const filteredCourseData = Object.values(coursedata).filter((course) => {
     return course.isHalfSemester === true
   })
 
@@ -313,6 +358,7 @@ const TimetableContainer = () => {
         loading={loadingg}
         setLoading={setLoadingg}
         data={courseData}
+        addToTimetable={addToTimetable}
       />
       {loading && <LoaderAnimation />}
       <Spin
@@ -335,6 +381,13 @@ const TimetableContainer = () => {
         </TimetableLayout>
       </Spin>
       <Aside title="My courses" loading={loading}>
+        <CoursesListInfo>
+          Total credits:{' '}
+          {Object.values(coursedata).reduce(
+            (acc, course) => acc + course.credits,
+            0
+          )}
+        </CoursesListInfo>
         <ClashAlerts>
           {!loading &&
             warnings.map((warning) => (
@@ -353,7 +406,7 @@ const TimetableContainer = () => {
             courseTimetableList.map(({ id, course }) => (
               <TimetableAsideItem
                 key={id}
-                code={course}
+                course={coursedata[course]}
                 handleRemove={removeFromTimetable(id)}
                 loading={loading}
               />
@@ -394,6 +447,12 @@ const TimetableCardTitle = styled.div`
   align-items: center;
   justify-content: space-between;
   width: 100%;
+`
+
+const CoursesListInfo = styled.span`
+  margin-top: 1rem;
+  color: ${({ theme }) => theme.primary};
+  font-weight: bold;
 `
 
 const ClashAlerts = styled.div`
