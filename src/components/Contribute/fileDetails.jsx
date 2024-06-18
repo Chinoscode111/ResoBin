@@ -21,6 +21,11 @@ export const fileTypes = [
     extention: 'ppt',
     icon: 'https://image.flaticon.com/icons/svg/136/136543.svg',
   },
+  {
+    type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+    extention: 'pptx',
+    icon: 'https://image.flaticon.com/icons/svg/136/136543.svg',
+  },
 ]
 
 export const defaultFile = {

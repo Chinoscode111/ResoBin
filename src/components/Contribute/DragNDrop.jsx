@@ -9,13 +9,13 @@ import { fileTypes } from './fileDetails'
 
 const dropzoneProps = {
   accept: fileTypes.map((file) => file.type),
-  maxSize: 30 * 1024 * 1024, // ? 30MB
-  minSize: 3 * 1024, // ? 3KB
+  // maxSize: 30 * 1024 * 1024, // ? 30MB
+  // minSize: 3 * 1024, // ? 3KB
 }
 
 export const DragNDropSub = ({ onDrop, children }) => {
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
-    useDropzone({ maxFiles: 1, onDrop, ...dropzoneProps })
+    useDropzone({ onDrop, ...dropzoneProps })
 
   let message = children
   if (isDragActive) {
@@ -25,7 +25,15 @@ export const DragNDropSub = ({ onDrop, children }) => {
 
   return (
     <UploadBoxSub {...getRootProps()} error={isDragReject}>
-      <input {...getInputProps()} />
+      <input
+        {...getInputProps({
+          webkitdirectory: '',
+          mozdirectory: '',
+          msdirectory: '',
+          odirectory: '',
+          directory: '',
+        })}
+      />
 
       {message}
     </UploadBoxSub>
@@ -34,7 +42,7 @@ export const DragNDropSub = ({ onDrop, children }) => {
 
 const DragNDrop = ({ onDrop, children }) => {
   const { getRootProps, getInputProps, isDragActive, isDragReject } =
-    useDropzone({ onDrop, ...dropzoneProps })
+    useDropzone({ onDrop })
 
   let message = null
   if (!isDragActive)
@@ -50,7 +58,15 @@ const DragNDrop = ({ onDrop, children }) => {
 
   return (
     <UploadBox {...getRootProps()} error={isDragReject}>
-      <input {...getInputProps()} />
+      <input
+        {...getInputProps({
+          webkitdirectory: '',
+          mozdirectory: '',
+          msdirectory: '',
+          odirectory: '',
+          directory: '',
+        })}
+      />
       <CloudUpload size="60" />
       {message}
       <span>

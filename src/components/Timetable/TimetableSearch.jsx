@@ -28,13 +28,13 @@ const TimetableSearch = ({ loading, setLoading, data, addToTimetable }) => {
       return []
     }
 
-    const lowercaseValue = value ? value.toLowerCase() : ''
+    const lowercaseValue = value ? value.toLowerCase().replace(/ /g, '') : ''
 
     const suggestions = []
 
     data.forEach(({ code, semester }) => {
       const lowercaseCode = code.toLowerCase().replace(/ /g, '')
-
+      // console.log(lowercaseCode, lowercaseValue)
       if (lowercaseCode.includes(lowercaseValue)) {
         if (semester.length > 0) {
           const { timetable } = semester[0]

@@ -37,6 +37,9 @@ const ContributeContainer = ({ visible, setVisible }) => {
     fetchUserResources()
   }, [])
 
+  // what is this way of writing the function? what is the purpose of this function?
+
+
   const updateFileItem = (id) => (fileItem) => {
     setFilesSelected((prevItems) =>
       prevItems.map((item) =>
