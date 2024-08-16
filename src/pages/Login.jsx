@@ -11,7 +11,7 @@ import {
   PageContainer,
   toast,
 } from 'components/shared'
-import { getLoginURL, SSO } from 'config/sso'
+import { getLoginURL } from 'config/sso'
 import { CSRFToken } from 'helpers'
 import { useQueryString } from 'hooks'
 import { getAuthStatusAction, loginAction } from 'store/authSlice'
@@ -35,8 +35,8 @@ const Login = () => {
       dispatch(getAuthStatusAction())
     } else {
       // ? If user is not authenticated
-      const code = getQueryString('code')
-      if (code) {
+      const accessToken = getQueryString('access_token')
+      if (accessToken) {
         const loginUser = async (params) => {
           try {
             const response = await dispatch(loginAction({ params }))
@@ -46,8 +46,8 @@ const Login = () => {
           }
         }
 
-        const params = { code, redir: SSO.BASE_REDIRECT_URI }
-        deleteQueryString('code')
+        const params = { access_token: accessToken }
+        deleteQueryString('access_token')
         loginUser(params)
       }
 
