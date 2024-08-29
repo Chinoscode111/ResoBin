@@ -1,8 +1,3 @@
-import { useEffect } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { useDispatch, useSelector } from 'react-redux'
-import { Link, useNavigate, useLocation } from 'react-router-dom'
-
 import { ReactComponent as ResoBinLogo } from 'assets/svgs/logo.svg'
 import {
   AuthBoxContainer,
@@ -14,6 +9,10 @@ import {
 import { getLoginURL } from 'config/sso'
 import { CSRFToken } from 'helpers'
 import { useQueryString } from 'hooks'
+import { useEffect } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { useDispatch, useSelector } from 'react-redux'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { getAuthStatusAction, loginAction } from 'store/authSlice'
 
 const Login = () => {
