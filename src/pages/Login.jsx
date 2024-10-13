@@ -50,7 +50,7 @@ const Login = () => {
         loginUser(params)
       }
 
-      // ? If SSO login is unsuccessfull, an error param appears in the query string
+      // ? If SSO login is unsuccessful, an error param appears in the query string
       const error = getQueryString('error')
       if (error) {
         toast({ status: 'error', content: `Error: ${error}` })
