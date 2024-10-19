@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { toast } from 'components/shared'
-import { getLogoutURL } from 'config/sso'
 import { camelizeKeys, snakeizeKeys } from 'helpers'
 
 // ? waits for 5 mins before timing out
@@ -50,10 +49,7 @@ export const API = {
   // * Authentication endpoints
   auth: {
     login: async ({ params }) => APIInstance.get('/accounts/login', { params }),
-    logout: async () => {
-      APIInstance.get('/accounts/logout')
-      window.location.href = getLogoutURL()
-    },
+    logout: async () => APIInstance.get('/accounts/logout'),
     authenticate: async () => APIInstance.get('/accounts/authenticate'),
     csrftoken: async () => APIInstance.get('/accounts/csrftoken'),
   },

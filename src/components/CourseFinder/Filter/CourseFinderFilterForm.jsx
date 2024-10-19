@@ -1,15 +1,14 @@
 import { X } from '@styled-icons/heroicons-outline'
 import { Checkbox, Select, Switch } from 'antd'
-import { kebabCase } from 'lodash'
-import { useSelector } from 'react-redux'
-import styled from 'styled-components/macro'
-
 import { Form, Slider } from 'components/shared'
 import { ButtonIconDanger } from 'components/shared/Buttons'
 import tags from 'data/tags.json'
 import { slots } from 'data/timetable'
 import { useQueryString } from 'hooks'
+import { kebabCase } from 'lodash'
+import { useSelector } from 'react-redux'
 import { selectDepartments } from 'store/courseSlice'
+import styled from 'styled-components/macro'
 
 export const filterKeys = [
   'p', // ? page number
@@ -103,13 +102,13 @@ const CourseFinderFilterForm = ({ setLoading }) => {
   }))
 
   const slotOptions = Object.keys(slots).reduce((acc, slot) => {
-    const label = slot[0].match(/^\d/) ? slot.match(/\d+/g)?.join('') : slot;
-    const value = slot;
+    const label = slot[0].match(/^\d/) ? slot.match(/\d+/g)?.join('') : slot
+    const value = slot
     if (!acc.some((option) => option.label === label)) {
-      acc.push({ label, value });
+      acc.push({ label, value })
     }
-    return acc;
-  }, []);
+    return acc
+  }, [])
 
   return (
     <Form

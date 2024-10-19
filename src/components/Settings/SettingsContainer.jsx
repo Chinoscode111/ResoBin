@@ -1,11 +1,11 @@
 import { Button, Switch } from 'antd'
-import { useDispatch, useSelector } from 'react-redux'
-import styled from 'styled-components/macro'
-
 import { Aside, CardSplit, Form, toast, Typography } from 'components/shared'
 import { PageHeading, PageTitle } from 'components/shared/Layout'
+import { getLogoutURL } from 'config/sso'
+import { useDispatch, useSelector } from 'react-redux'
 import { logoutAction } from 'store/authSlice'
 import { selectSettings, setTracking } from 'store/settingsSlice'
+import styled from 'styled-components/macro'
 
 import Profile from './Profile'
 
@@ -21,6 +21,7 @@ const SettingsContainer = () => {
   const handleLogout = async () => {
     try {
       const response = await dispatch(logoutAction())
+      window.location.href = getLogoutURL()
       toast({ status: 'success', content: response?.payload?.detail })
     } catch (error) {
       toast({ status: 'error', content: error })
@@ -40,7 +41,6 @@ const SettingsContainer = () => {
         onValuesChange={handleSettingsChange}
         initialValues={settings}
       >
-
         <CardSplit
           main={
             <>

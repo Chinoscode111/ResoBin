@@ -1,12 +1,11 @@
-import { isEmpty, kebabCase } from 'lodash'
-import { useEffect, useState } from 'react'
-import { Helmet } from 'react-helmet-async'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
-
 import { CoursePageContainer } from 'components/CoursePage'
 import { LoaderAnimation, PageContainer, toast } from 'components/shared'
 import { API } from 'config/api'
 import { coursePageUrl } from 'helpers'
+import { isEmpty, kebabCase } from 'lodash'
+import { useEffect, useState } from 'react'
+import { Helmet } from 'react-helmet-async'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
 
 const CoursePage = () => {
   const location = useLocation()
